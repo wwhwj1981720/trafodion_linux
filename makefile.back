@@ -1,0 +1,15 @@
+CC = g++ 
+testdatestring:datestring.o -lpthread globalFunction.o RowObject.o RowBean.o ODBCDao.o -lodbc
+	$(CC) -o $@ $^
+datestring.o:datestring.cpp
+	g++ -c datestring.cpp
+globalFunction.o:globalFunction.cpp
+	g++ -c globalFunction.cpp
+RowObject.o:RowObject.cpp
+	g++ -c RowObject.cpp
+RowBean.o:RowBean.cpp
+	g++ -c RowBean.cpp
+ODBCDao.o:ODBCDao.cpp
+	g++ -c ODBCDao.cpp 
+clean:
+	rm datestring.o RowObject.o RowBean.o ODBCDao.o 	
