@@ -1,0 +1,108 @@
+1、	下载  unixODBC-2.3.2.tar.gz   （http://www.unixodbc.org/）
+2、	tar –xzvf unixODBC-2.3.2.tar.gz 到 /home/wwh 
+3、	cd  /home/wwh/unixODBC-2.3.2 下面执行
+4、	./configure
+5、	Make
+6、	Make install
+(默认是被安装到/usr/local)
+7、	vi /etc/profile 环境变量
+   LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/include
+CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:/usr/local/include
+export CPLUS_INCLUDE_PATH
+export LD_LIBRARY_PATH
+添加 c++的环境编译设置
+（注意 unixODBC 的lib和头文件被安装在 /usr/local/lib 和 /usr/local/include中）
+8、	编写 TRAFDSN 文件
+[ODBC]
+traceFlags              = ERROR
+TraceStart              = 0
+TraceFile               = tracefile.log
+MaxTraceFileSize        = 1024
+
+[ODBC Data Sources]
+Default_DataSource      =    TRAFODBC
+
+[ODBC]
+traceFlags              = ERROR
+TraceStart              = 0
+TraceFile               = tracefile.log
+MaxTraceFileSize        = 1024
+
+[ODBC Data Sources]
+Default_DataSource      =    TRAFODBC
+
+DataSourceName          = Driver
+
+[DataSourceName]
+Driver                  = TRAFODBC
+
+[oracleconn]
+Description                 = Default Data Source
+Catalog                     = TRAFODION
+Schema                      = SEABASE
+DataLang                    = 0
+FetchBufferSize             = SYSTEM_DEFAULT
+Server                      = TCP:192.168.0.21:37800
+SQL_ATTR_CONNECTION_TIMEOUT = SYSTEM_DEFAULT
+SQL_LOGIN_TIMEOUT           = SYSTEM_DEFAULT
+SQL_QUERY_TIMEOUT           = NO_TIMEOUT
+
+[Default_DataSource]
+Description                 = Default Data Source
+Catalog                     = TRAFODION
+Schema                      = SEABASE
+DataLang                    = 0
+FetchBufferSize             = SYSTEM_DEFAULT
+Server                      = TCP:192.168.0.21:37800
+SQL_ATTR_CONNECTION_TIMEOUT = SYSTEM_DEFAULT
+SQL_LOGIN_TIMEOUT           = SYSTEM_DEFAULT
+SQL_QUERY_TIMEOUT           = NO_TIMEOUT
+
+
+重要的字段是
+Oracleconn      DSN 的连接串名称
+Server                      = TCP:192.168.0.21:37800   trafodion  的服务器地址
+用户名  trafodion  在代码中填入
+密码    trafodion  在代码中填入
+Table    cdr_phonenum_salt  在代码中填入
+
+
+9、	编写 makefile 文件
+CC = g++
+testdatestring:datestring.o -lpthread globalFunction.o RowObject.o RowBean.o ODBCDao.o -ltrafodbc64
+        $(CC) -L /usr/local/lib  -o $@ $^
+datestring.o:datestring.cpp
+        g++ -g -c datestring.cpp
+globalFunction.o:globalFunction.cpp
+        g++ -g -c globalFunction.cpp
+RowObject.o:RowObject.cpp
+        g++ -g -c  RowObject.cpp
+RowBean.o:RowBean.cpp
+        g++ -g -c  RowBean.cpp
+ODBCDao.o:ODBCDao.cpp
+        g++ -g -c ODBCDao.cpp
+clean:
+        rm testdatestring datestring.o RowObject.o RowBean.o ODBCDao.o globalFunction.o
+最后  make 出现错误 找不到  -ltrafodbc64 
+解决办法手动 运行 g++ datestring.o -lpthread globalFunction.o RowObject.o RowBean.o ODBCDao.o -ltrafodbc64  -o datestring
+
+
+10  java 代码的配置文件
+inputdir=d\:\\BSSdecode\\zjfee\\scdr\\test\\
+outputdir=D\:\\BSSdecode\\tranfoding\\make\\
+renamedir=d\:\\BSSdecode\\zjfee\\scdr\\test\\
+movedir=d\:\\BSSdecode\\zjfee\\scdr\\back\\
+producerthreadbean=producerBeanThread
+consumerthreadbean=ConsumerBeanThread
+readthreadnum=30
+writethreadnum=10
+fieldsize=10000
+blocksize=100
+queuemax=1000
+os=window
+log=/home/log.txt
+delay=5
+url=jdbc:t4jdbc://192.168.0.21:37800/:
+username=trafodion
+password=trafodion
+classname=org.trafodion.jdbc.t4.T4Driver
